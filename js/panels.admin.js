@@ -11,7 +11,7 @@ jQuery( function ( $ ) {
     $( window ).bind( 'resize', function ( event ) {
         // ui-resizable elements trigger resize
         if ( $( event.target ).hasClass( 'ui-resizable' ) ) return;
-        
+
         // Resize all the grid containers
         $( '#panels-container .grid-container' ).panelsResizeCells();
     } );
@@ -107,7 +107,7 @@ jQuery( function ( $ ) {
                 $(this ).dialog('close');
             }
         });
-    
+
     $( '#so-panels-panels .handlediv' ).click( function () {
         // Trigger the resize to reorganise the columns
         setTimeout( function () {
@@ -177,7 +177,7 @@ jQuery( function ( $ ) {
         $( '#panels-dialog' ).dialog( 'close' );
     } );
 
-    
+
 
     // Either setup an initial grid or load one from the panels data
     if ( typeof panelsData != 'undefined' ) panels.loadPanels(panelsData);
