@@ -67,7 +67,7 @@ function siteorigin_panels_style_dialog_form(){
 				break;
 
 			case $attr['type'] :
-				do_action( "siteorigin_panels_row_field_type_{$attr['type']}", $attr );
+				do_action( "siteorigin_panels_row_field_type_{$attr['type']}", $attr, $name );
 				break;
 
 			default :
