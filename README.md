@@ -5,9 +5,9 @@ Build responsive page layouts using the widgets you know and love using this sim
 
 ## Description
 
-[vimeo http://vimeo.com/59561067]
-
 WordPress has evolved into a fully functional CMS. Page Builder (previously called Panels) completes the transition by giving you a way to create responsive column layouts using the widgets you know and love.
+
+[Video Tour](http://vimeo.com/59561067)
 
 ### Use Your Widgets
 
@@ -58,10 +58,10 @@ Most standard widgets work with Page Builder, but here are some of our favorites
 
 ## Screenshots
 
-1. The page builder interface.
-2. Adding a new widget. This includes a live search filter to help you keep control if you have a lot of widgets.
-3. Editing a widget's settings.
-4. Easily undo mistakes.
+![The page builder interface](https://ps.w.org/siteorigin-panels/assets/screenshot-1.png)
+![Adding a new widget](https://ps.w.org/siteorigin-panels/assets/screenshot-2.png)
+![Editing a widget's settings](https://ps.w.org/siteorigin-panels/assets/screenshot-3.png)
+![Easily undo mistakes](https://ps.w.org/siteorigin-panels/assets/screenshot-4.png)
 
 ## Documentation
 
