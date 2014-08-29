@@ -66,6 +66,10 @@ function siteorigin_panels_style_dialog_form(){
 				?><input type="number" name="panelsStyle[<?php echo esc_attr($name) ?>]" data-style-field="<?php echo esc_attr($name) ?>" data-style-field-type="<?php echo esc_attr($attr['type']) ?>" /> <?php
 				break;
 
+			case $attr['type'] :
+				do_action( "siteorigin_panels_row_field_type_{$attr['type']}", $attr );
+				break;
+
 			default :
 				?><input type="text" name="panelsStyle[<?php echo esc_attr($name) ?>]" data-style-field="<?php echo esc_attr($name) ?>" data-style-field-type="<?php echo esc_attr($attr['type']) ?>" /> <?php
 				break;
