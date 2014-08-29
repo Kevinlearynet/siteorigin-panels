@@ -56,13 +56,6 @@ Most standard widgets work with Page Builder, but here are some of our favorites
 1. Upload and install Page Builder in the same way you'd install any other plugin.
 2. Read the [usage documentation](http://siteorigin.com/page-builder/documentation/) on SiteOrigin.
 
-## Screenshots
-
-![The page builder interface](https://ps.w.org/siteorigin-panels/assets/screenshot-1.png)
-![Adding a new widget](https://ps.w.org/siteorigin-panels/assets/screenshot-2.png)
-![Editing a widget's settings](https://ps.w.org/siteorigin-panels/assets/screenshot-3.png)
-![Easily undo mistakes](https://ps.w.org/siteorigin-panels/assets/screenshot-4.png)
-
 ## Documentation
 
 [Documentation](http://siteorigin.com/page-builder/documentation/) is available on SiteOrigin.
