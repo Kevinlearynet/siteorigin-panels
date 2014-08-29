@@ -66,12 +66,9 @@ function siteorigin_panels_style_dialog_form(){
 				?><input type="number" name="panelsStyle[<?php echo esc_attr($name) ?>]" data-style-field="<?php echo esc_attr($name) ?>" data-style-field-type="<?php echo esc_attr($attr['type']) ?>" /> <?php
 				break;
 
-			case $attr['type'] :
-				do_action( "siteorigin_panels_row_field_type_{$attr['type']}", $attr, $name );
-				break;
-
 			default :
-				?><input type="text" name="panelsStyle[<?php echo esc_attr($name) ?>]" data-style-field="<?php echo esc_attr($name) ?>" data-style-field-type="<?php echo esc_attr($attr['type']) ?>" /> <?php
+				$html = '<input type="text" name="panelsStyle[' . $name . ']" data-style-field="' . $name . '" data-style-field-type="' . esc_attr( $attr['type'] ) . '" />';
+				echo apply_filters( "siteorigin_panels_row_field_types", $html, $attr, $name );
 				break;
 		}
 
