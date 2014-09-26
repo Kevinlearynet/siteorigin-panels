@@ -5,8 +5,11 @@ include plugin_dir_path(__FILE__) . '/less/functions.php';
 /**
  * Include all the widget files and register their widgets
  */
-function origin_widgets_init(){
-	foreach(glob(plugin_dir_path(__FILE__).'/widgets/*/*.php') as $file) {
+function origin_widgets_init() {
+	$plugin_widgets = glob( plugin_dir_path( __FILE__ ) . '/widgets/*/*.php' );
+	$theme_widgets = glob( get_stylesheet_directory() . '/widgets/*/*.php' );
+	$all_widgets = array_merge( $plugin_widgets, $theme_widgets );
+	foreach ( $all_widgets as $file) {
 		include_once ($file);
 
 		$p = pathinfo($file);
@@ -162,26 +165,61 @@ abstract class SiteOrigin_Panels_Widget extends WP_Widget{
 			if($field_args['type'] != 'checkbox') echo '<br />';
 
 			switch($field_args['type']) {
+
 				case 'text' :
 					?><input type="text" class="widefat" id="<?php echo $this->get_field_id( $field_id ); ?>" name="<?php echo $this->get_field_name( $field_id ); ?>" value="<?php echo esc_attr($instance[$field_id]) ?>" /><?php
 					break;
+
 				case 'textarea' :
+
 					if(empty($field_args['height'])) $field_args['height'] = 6;
 					?><textarea class="widefat" id="<?php echo $this->get_field_id( $field_id ); ?>" name="<?php echo $this->get_field_name( $field_id ); ?>" rows="<?php echo intval($field_args['height']) ?>"><?php echo esc_textarea($instance[$field_id]) ?></textarea><?php
 					break;
+
 				case 'number' :
 					?><input type="number" class="small-text" id="<?php echo $this->get_field_id( $field_id ); ?>" name="<?php echo $this->get_field_name( $field_id ); ?>" value="<?php echo floatval($instance[$field_id]) ?>" /><?php
 					break;
+
+				case 'range' :
+					$default = ( isset( $field_args['default'] ) ) ? floatval( $field_args['default'] ) : 1;
+					$value = ( isset( $instance[$field_id] ) ) ? floatval( $instance[$field_id] ) : $default;
+					?>
+					<span id="range-<?php echo $this->get_field_id( $field_id ); ?>" class="range-field">
+						<input type="range" step="<?php echo $field_args['step']; ?>" max="<?php echo $field_args['max']; ?>" min="<?php echo $field_args['min']; ?>" id="<?php echo $this->get_field_id( $field_id ); ?>" name="<?php echo $this->get_field_name( $field_id ); ?>" value="<?php echo $value; ?>" />
+						<input id="<?php echo $this->get_field_id( $field_id ); ?>-value" value="<?php echo $value; ?>" type="text" size="2" value="1" readonly>
+					</span><!-- // end .range-field -->
+					<?php
+					break;
+
 				case 'checkbox' :
 					?><input type="checkbox" class="small-text" id="<?php echo $this->get_field_id( $field_id ); ?>" name="<?php echo $this->get_field_name( $field_id ); ?>" <?php checked(!empty($instance[$field_id])) ?>/><?php
 					break;
+
 				case 'select' :
 					?>
 					<select id="<?php echo $this->get_field_id( $field_id ); ?>" name="<?php echo $this->get_field_name( $field_id ); ?>">
 						<?php foreach($field_args['options'] as $k => $v) : ?>
-							<option value="<?php echo esc_attr($k) ?>" <?php selected($instance[$field_id], $k) ?>><?php echo esc_html($v) ?></option>
+						<option value="<?php echo esc_attr($k) ?>" <?php selected($instance[$field_id], $k) ?>><?php echo esc_html($v) ?></option>
 						<?php endforeach; ?>
 					</select>
+					<?php
+					break;
+
+				case 'multiple' :
+					?>
+					<select data-field-type="chosen" id="<?php echo $this->get_field_id( $field_id ); ?>" name="<?php echo $this->get_field_name( $field_id ); ?>"  style="width:400px;" placeholder="Choose..." multiple>
+						<?php
+						$values = ( $instance[$field_id] ) ? $instance[$field_id] : array();
+						foreach($field_args['options'] as $k => $v) :
+						?>
+						<option value="<?php echo esc_attr($k) ?>" <?php if ( in_array( $k, $values ) ) echo ' selected="selected"'; ?>><?php echo esc_html($v) ?></option>
+						<?php endforeach; ?>
+					</select>
+					<script type="text/javascript">
+					(function( $ ) {
+						$('#<?php echo $this->get_field_id( $field_id ); ?>').chosen();
+					})(jQuery);
+					</script>
 					<?php
 					break;
 			}

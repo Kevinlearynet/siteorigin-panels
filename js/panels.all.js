@@ -15,6 +15,7 @@
  * @codekit-prepend "panels.admin.styles.js"
  */
 
-jQuery( function ( $ ) {
-	console.log('panels.all.min.js loaded');
-} );
+(function( $ ) {
+	$(function() {
+	});
+})(jQuery);

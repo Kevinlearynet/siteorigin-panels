@@ -1,14 +1,15 @@
 <?php
 /*
-Plugin Name: Page Builder by SiteOrigin
-Plugin URI: http://siteorigin.com/page-builder/
+Plugin Name: Core Page Builder
+Plugin URI: https://github.com/Kevinlearynet/siteorigin-panels
+GitHub Plugin URI: kevinlearynet/github-updater
+GitHub Plugin URI: https://github.com/kevinlearynet/github-updater
 Description: A drag and drop, responsive page builder that simplifies building your website.
 Version: 1.5
-Author: Greg Priday
-Author URI: http://siteorigin.com
+Author: Kevin Leary
+Author URI: http://www.kevinleary.net
 License: GPL3
 License URI: http://www.gnu.org/licenses/gpl.html
-Donate link: http://siteorigin.com/page-builder/donate/
 */
 
 define('SITEORIGIN_PANELS_VERSION', '1.5');
@@ -20,10 +21,29 @@ include plugin_dir_path(__FILE__) . 'inc/options.php';
 include plugin_dir_path(__FILE__) . 'inc/revisions.php';
 include plugin_dir_path(__FILE__) . 'inc/copy.php';
 include plugin_dir_path(__FILE__) . 'inc/styles.php';
-include plugin_dir_path(__FILE__) . 'inc/legacy.php';
 include plugin_dir_path(__FILE__) . 'inc/notice.php';
 
 if( defined('SITEORIGIN_PANELS_DEV') && SITEORIGIN_PANELS_DEV ) include plugin_dir_path(__FILE__).'inc/debug.php';
+
+add_filter( 'http_request_args', 'bpu_prevent_update_check',10, 2 );
+function bpu_prevent_update_check( $r, $url ) {
+	if ( 0 === strpos( $url, 'https://api.wordpress.org/plugins/update-check/1.1/' ) ) {
+		$bpu_update_blocked_plugins 		= get_option('bpu_update_blocked_plugins');
+		$bpu_update_blocked_plugins_array	= @explode('###',$bpu_update_blocked_plugins);
+		if (!empty($bpu_update_blocked_plugins_array)){
+			foreach ($bpu_update_blocked_plugins_array as $my_plugin){
+				$plugins = json_decode($r['body']['plugins'], true);
+
+				if (array_key_exists($my_plugin, $plugins['plugins'])){
+					unset($plugins['plugins'][$my_plugin]);
+				}
+
+				$r['body']['plugins'] = json_encode( $plugins );
+			}
+		}
+	}
+	return $r;
+}
 
 /**
  * Hook for activation of Page Builder.
@@ -69,7 +89,7 @@ function siteorigin_panels_admin_menu(){
 		'siteorigin_panels_render_admin_home_page'
 	);
 }
-add_action('admin_menu', 'siteorigin_panels_admin_menu');
+//add_action('admin_menu', 'siteorigin_panels_admin_menu');
 
 /**
  * Render the page used to build the custom home page.
@@ -582,7 +602,10 @@ function siteorigin_panels_filter_content( $content ) {
 	if ( in_array( $post->post_type, siteorigin_panels_setting('post-types') ) ) {
 		$panel_content = siteorigin_panels_render( $post->ID );
 
-		if ( !empty( $panel_content ) ) $content = $panel_content;
+		if ( ! empty( $panel_content ) ) 
+			$content = $panel_content;
+		else
+			$content = '<div class="wp-editor">' . $content . '</div>';
 	}
 
 	return $content;
@@ -700,12 +723,14 @@ function siteorigin_panels_render( $post_id = false, $enqueue_css = true, $panel
 		}
 		echo '>';
 
+		echo '<div class="panel-grid-table"><div class="panel-grid-row">';
+
 		$style_attributes = array();
 		if( !empty( $panels_data['grids'][$gi]['style']['class'] ) ) {
 			$style_attributes['class'] = array('panel-row-style-'.$panels_data['grids'][$gi]['style']['class']);
 		}
 
-		// Themes can add their own attributes to the style wrapper
+		/* Themes can add their own attributes to the style wrapper
 		$style_attributes = apply_filters('siteorigin_panels_row_style_attributes', $style_attributes, !empty($panels_data['grids'][$gi]['style']) ? $panels_data['grids'][$gi]['style'] : array());
 		if( !empty($style_attributes) ) {
 			if(empty($style_attributes['class'])) $style_attributes['class'] = array();
@@ -722,7 +747,7 @@ function siteorigin_panels_render( $post_id = false, $enqueue_css = true, $panel
 				}
 			}
 			echo '>';
-		}
+		}*/
 
 		foreach ( $cells as $ci => $widgets ) {
 			// Themes can add their own styles to cells
@@ -749,9 +774,12 @@ function siteorigin_panels_render( $post_id = false, $enqueue_css = true, $panel
 		}
 		echo '</div>';
 
+		/*
 		if( !empty($style_attributes) ) {
 			echo '</div>';
 		}
+		*/
+		echo '</div></div><!--// end .panel-grid-table -->';
 
 		// This allows other themes and plugins to add html after the row
 		echo apply_filters( 'siteorigin_panels_after_row', '', $panels_data['grids'][$gi], $grid_attributes );
@@ -979,22 +1007,6 @@ function siteorigin_panels_cloned_page_layouts($layouts){
 	return $layouts;
 }
 add_filter('siteorigin_panels_prebuilt_layouts', 'siteorigin_panels_cloned_page_layouts', 20);
-
-/**
- * Add a link to recommended plugins and widgets.
- */
-function siteorigin_panels_recommended_widgets(){
-	// This filter can be used to hide the recommended plugins button.
-	if( ! apply_filters('siteorigin_panels_show_recommended', true) || is_multisite() ) return;
-
-	?>
-	<p id="so-panels-recommended-plugins">
-		<a href="<?php echo admin_url('plugin-install.php?tab=favorites&user=siteorigin-pagebuilder') ?>" target="_blank"><?php _e('Recommended Plugins and Widgets', 'siteorigin-panels') ?></a>
-		<small><?php _e('Free plugins that work well with Page Builder', 'siteorigin-panels') ?></small>
-	</p>
-	<?php
-}
-add_action('siteorigin_panels_after_widgets', 'siteorigin_panels_recommended_widgets');
 
 /**
  * Add a filter to import panels_data meta key. This fixes serialized PHP.

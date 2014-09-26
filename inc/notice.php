@@ -28,8 +28,6 @@ function siteorigin_panels_update_notice(){
 				?>
 			</p>
 			<p>
-				<a href="http://siteorigin.com/threads/plugin-page-builder/" class="button button-secondary" target="_blank"><?php _e('Support Forums', 'siteorigin-panels') ?></a>
-				<a href="http://siteorigin.com/page-builder/#newsletter" class="button button-secondary" target="_blank"><?php _e('Newsletter', 'siteorigin-panels') ?></a>
 				<?php if(empty($dismissed)) : ?>
 					<a href="<?php echo add_query_arg('action', 'siteorigin_panels_update_notice_dismiss', admin_url( 'admin-ajax.php') ) ?>" class="button button-primary siteorigin-panels-dismiss"><?php _e('Dismiss', 'siteorigin-panels') ?></a>
 				<?php endif; ?>

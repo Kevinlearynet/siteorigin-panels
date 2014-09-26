@@ -1,215 +1,4 @@
 <?php
-
-class SiteOrigin_Panels_Widgets_Gallery extends WP_Widget {
-	function __construct() {
-		parent::__construct(
-			'siteorigin-panels-gallery',
-			__( 'Gallery (PB)', 'siteorigin-panels' ),
-			array(
-				'description' => __( 'Displays a gallery.', 'siteorigin-panels' ),
-			)
-		);
-	}
-
-	function widget( $args, $instance ) {
-		echo $args['before_widget'];
-
-		$shortcode_attr = array();
-		foreach($instance as $k => $v){
-			if(empty($v)) continue;
-			$shortcode_attr[] = $k.'="'.esc_attr($v).'"';
-		}
-
-		echo do_shortcode('[gallery '.implode(' ', $shortcode_attr).']');
-
-		echo $args['after_widget'];
-	}
-
-	function update( $new, $old ) {
-		return $new;
-	}
-
-	function form( $instance ) {
-		global $_wp_additional_image_sizes;
-
-		$types = apply_filters('siteorigin_panels_gallery_types', array());
-
-		$instance = wp_parse_args($instance, array(
-			'ids' => '',
-			'size' => apply_filters('siteorigin_panels_gallery_default_size', ''),
-			'type' => apply_filters('siteorigin_panels_gallery_default_type', ''),
-			'columns' => 3,
-			'link' => '',
-
-		));
-
-		?>
-		<p>
-			<label for="<?php echo $this->get_field_id( 'ids' ) ?>"><?php _e( 'Gallery Images', 'siteorigin-panels' ) ?></label>
-			<a href="#" onclick="return false;" class="so-gallery-widget-select-attachments hidden"><?php _e('edit gallery', 'siteorigin-panels') ?></a>
-			<input type="text" class="widefat" value="<?php echo esc_attr($instance['ids']) ?>" name="<?php echo $this->get_field_name('ids') ?>" />
-		</p>
-		<p class="description">
-			<?php _e("Comma separated attachment IDs. Defaults to all current page's attachments.") ?>
-		</p>
-
-		<p>
-			<label for="<?php echo $this->get_field_id( 'size' ) ?>"><?php _e( 'Image Size', 'siteorigin-panels' ) ?></label>
-			<select name="<?php echo $this->get_field_name( 'size' ) ?>" id="<?php echo $this->get_field_id( 'size' ) ?>">
-				<option value="" <?php selected(empty($instance['size'])) ?>><?php esc_html_e('Default', 'siteorigin-panels') ?></option>
-				<option value="large" <?php selected('large', $instance['size']) ?>><?php esc_html_e( 'Large', 'siteorigin-panels' ) ?></option>
-				<option value="medium" <?php selected('medium', $instance['size']) ?>><?php esc_html_e( 'Medium', 'siteorigin-panels' ) ?></option>
-				<option value="thumbnail" <?php selected('thumbnail', $instance['size']) ?>><?php esc_html_e( 'Thumbnail', 'siteorigin-panels' ) ?></option>
-				<option value="full" <?php selected('full', $instance['size']) ?>><?php esc_html_e( 'Full', 'siteorigin-panels' ) ?></option>
-				<?php if(!empty($_wp_additional_image_sizes)) : foreach ( $_wp_additional_image_sizes as $name => $info ) : ?>
-					<option value="<?php echo esc_attr( $name ) ?>" <?php selected($name, $instance['size']) ?>><?php echo esc_html( $name ) ?></option>
-				<?php endforeach; endif; ?>
-			</select>
-		</p>
-
-		<p>
-			<label for="<?php echo $this->get_field_id( 'type' ) ?>"><?php _e( 'Gallery Type', 'siteorigin-panels' ) ?></label>
-			<input type="text" class="regular" value="<?php echo esc_attr($instance['type']) ?>" name="<?php echo $this->get_field_name('type') ?>" />
-		</p>
-
-		<p>
-			<label for="<?php echo $this->get_field_id( 'columns' ) ?>"><?php _e( 'Columns', 'siteorigin-panels' ) ?></label>
-			<input type="text" class="regular" value="<?php echo esc_attr($instance['columns']) ?>" name="<?php echo $this->get_field_name('columns') ?>" />
-		</p>
-
-		<p>
-			<label for="<?php echo $this->get_field_id( 'link' ) ?>"><?php _e( 'Link To', 'siteorigin-panels' ) ?></label>
-			<select name="<?php echo $this->get_field_name( 'link' ) ?>" id="<?php echo $this->get_field_id( 'link' ) ?>">
-				<option value="" <?php selected('', $instance['link']) ?>><?php esc_html_e('Attachment Page', 'siteorigin-panels') ?></option>
-				<option value="file" <?php selected('file', $instance['link']) ?>><?php esc_html_e('File', 'siteorigin-panels') ?></option>
-				<option value="none" <?php selected('none', $instance['link']) ?>><?php esc_html_e('None', 'siteorigin-panels') ?></option>
-			</select>
-		</p>
-
-		<?php
-	}
-}
-
-class SiteOrigin_Panels_Widgets_PostContent extends WP_Widget {
-	function __construct() {
-		parent::__construct(
-			'siteorigin-panels-post-content',
-			__( 'Post Content (PB)', 'siteorigin-panels' ),
-			array(
-				'description' => __( 'Displays some form of post content form the current post.', 'siteorigin-panels' ),
-			)
-		);
-	}
-
-	function widget( $args, $instance ) {
-		if( is_admin() ) return;
-
-		echo $args['before_widget'];
-		$content = apply_filters('siteorigin_panels_widget_post_content', $this->default_content($instance['type']));
-		echo $content;
-		echo $args['after_widget'];
-	}
-
-	/**
-	 * The default content for post types
-	 * @param $type
-	 * @return string
-	 */
-	function default_content($type){
-		global $post;
-		if(empty($post)) return;
-
-		switch($type) {
-			case 'title' :
-				return '<h1 class="entry-title">' . $post->post_title . '</h1>';
-			case 'content' :
-				return '<div class="entry-content">' . wpautop($post->post_content) . '</div>';
-			case 'featured' :
-				if(!has_post_thumbnail()) return '';
-				return '<div class="featured-image">' . get_the_post_thumbnail($post->ID) . '</div>';
-			default :
-				return '';
-		}
-	}
-
-	function update($new, $old){
-		return $new;
-	}
-
-	function form( $instance ) {
-		$instance = wp_parse_args($instance, array(
-			'type' => 'content',
-		));
-
-		$types = apply_filters('siteorigin_panels_widget_post_content_types', array(
-			'' => __('None', 'siteorigin-panels'),
-			'title' => __('Title', 'siteorigin-panels'),
-			'featured' => __('Featured Image', 'siteorigin-panels'),
-		));
-
-		?>
-		<p>
-			<label for="<?php echo $this->get_field_id( 'type' ) ?>"><?php _e( 'Display Content', 'siteorigin-panels' ) ?></label>
-			<select id="<?php echo $this->get_field_id( 'type' ) ?>" name="<?php echo $this->get_field_name( 'type' ) ?>">
-				<?php foreach ($types as $type_id => $title) : ?>
-					<option value="<?php echo esc_attr($type_id) ?>" <?php selected($type_id, $instance['type']) ?>><?php echo esc_html($title) ?></option>
-				<?php endforeach ?>
-			</select>
-		</p>
-	<?php
-	}
-}
-
-class SiteOrigin_Panels_Widgets_Image extends WP_Widget {
-	function __construct() {
-		parent::__construct(
-			'siteorigin-panels-image',
-			__( 'Image (PB)', 'siteorigin-panels' ),
-			array(
-				'description' => __( 'Displays a simple image.', 'siteorigin-panels' ),
-			)
-		);
-	}
-
-	/**
-	 * @param array $args
-	 * @param array $instance
-	 */
-	function widget( $args, $instance ) {
-		echo $args['before_widget'];
-		if(!empty($instance['href'])) echo '<a href="' . $instance['href'] . '">';
-		echo '<img src="'.esc_url($instance['src']).'" />';
-		if(!empty($instance['href'])) echo '</a>';
-		echo $args['after_widget'];
-	}
-
-	function update($new, $old){
-		$new = wp_parse_args($new, array(
-			'src' => '',
-			'href' => '',
-		));
-		return $new;
-	}
-
-	function form( $instance ) {
-		$instance = wp_parse_args($instance, array(
-			'src' => '',
-			'href' => '',
-		));
-
-		?>
-		<p>
-			<label for="<?php echo $this->get_field_id( 'src' ) ?>"><?php _e( 'Image URL', 'siteorigin-panels' ) ?></label>
-			<input type="text" class="widefat" id="<?php echo $this->get_field_id( 'src' ) ?>" name="<?php echo $this->get_field_name( 'src' ) ?>" value="<?php echo esc_attr($instance['src']) ?>" />
-		</p>
-		<p>
-			<label for="<?php echo $this->get_field_id( 'href' ) ?>"><?php _e( 'Destination URL', 'siteorigin-panels' ) ?></label>
-			<input type="text" class="widefat" id="<?php echo $this->get_field_id( 'href' ) ?>" name="<?php echo $this->get_field_name( 'href' ) ?>" value="<?php echo esc_attr($instance['href']) ?>" />
-		</p>
-	<?php
-	}
-}
-
 /**
  * Display a loop of posts.
  *
@@ -304,6 +93,7 @@ class SiteOrigin_Panels_Widgets_PostLoop extends WP_Widget{
 			echo $args['before_title'] . $instance['title'] . $args['after_title'];
 		}
 
+		add_filter( 'siteorigin_panels_filter_content_enabled', array( 'SiteOrigin_Panels_Widgets_PostLoop', 'remove_content_filter' ) );
 		if(strpos('/'.$instance['template'], '/content') !== false) {
 			while(have_posts()) {
 				the_post();
@@ -313,11 +103,16 @@ class SiteOrigin_Panels_Widgets_PostLoop extends WP_Widget{
 		else {
 			locate_template($instance['template'], true, false);
 		}
+		remove_filter( 'siteorigin_panels_filter_content_enabled', array( 'SiteOrigin_Panels_Widgets_PostLoop', 'remove_content_filter' ) );
 
 		echo $args['after_widget'];
 
 		// Reset everything
 		wp_reset_query();
+	}
+
+	static function remove_content_filter(){
+		return false;
 	}
 
 	/**
@@ -683,9 +478,6 @@ add_shortcode('self_video', 'siteorigin_panels_video_shortcode');
  * Register the widgets.
  */
 function siteorigin_panels_widgets_init(){
-	register_widget('SiteOrigin_Panels_Widgets_Gallery');
-	register_widget('SiteOrigin_Panels_Widgets_PostContent');
-	register_widget('SiteOrigin_Panels_Widgets_Image');
 	register_widget('SiteOrigin_Panels_Widgets_PostLoop');
 	register_widget('SiteOrigin_Panels_Widgets_EmbeddedVideo');
 	register_widget('SiteOrigin_Panels_Widgets_Video');
